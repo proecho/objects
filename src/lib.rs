@@ -1,28 +1,32 @@
 use chrono::{DateTime, TimeZone, NaiveDateTime, Utc, Date};
 use std::boxed::Box;
-use std::fs::OpenOptions;
+use std::fs::{OpenOptions, File};
+use std::time::SystemTime;
+use std::io::prelude::*;
 
-#[derive(Debug,PartialEq)]
+
+
+#[derive(Debug,PartialEq,Clone)]
 pub enum Terminator{
 	Terminate,
 	No,
 }
 
-#[derive(Debug,PartialEq)]
+#[derive(Debug,PartialEq,Clone)]
 pub enum entrys<'a>{
 	Todo(Todo <'a>),
 	Events(Events <'a>),
 	appointments(Appointments <'a>),
 }
 
-#[derive(Debug,PartialEq)]
+#[derive(Debug,PartialEq,Clone)]
 pub struct Todo<'a>{
 	Title: Option<&'a str>,
 	List: Option<&'a str>,
 	DateTime: Box<Option<DateTime<Utc>>>,
 }
 
-#[derive(Debug,PartialEq)]
+#[derive(Debug,PartialEq,Clone)]
 pub struct Events<'a>{
 	Title: Option<&'a str>,
 	DateTime: Box<Option<DateTime<Utc>>>,
@@ -30,17 +34,18 @@ pub struct Events<'a>{
 	Attendees:Option<&'a str>,
 }
 	
-#[derive(Debug,PartialEq)]
+#[derive(Debug,PartialEq,Clone)]
 pub struct Appointments<'a>{
 	Title: Option<&'a str>,
 	DateTime: Box<Option<DateTime<Utc>>>,
 	With_who: Option<&'a str>,
 	Description: Option<&'a str>,
 }
-	
+
+
 
 pub trait entry_type {
-	fn save(&self) -> Result<Terminator,String> {
+	fn save(&self) -> Result<Terminator,String> where Self: std::fmt::Debug{
 		let file_name = match self.get_date() {
 			Some(a) => format!("{}",a),
 			None => format!("None"),
@@ -50,13 +55,25 @@ pub trait entry_type {
 		           .append(true)
 		           .create(true)
 		           .open(file_name);
+		           
+		if self.get_date() == Some(DateTime::<Utc>::from(SystemTime::now()).date()) {
+	    }
+		           
+		let success = file.unwrap().write_all((format!("{:?}", self)).as_bytes()); //fix this later
 		
-		Ok(Terminator::No)
+//		if 
+		
+		match success {
+		   Ok(a) => return Ok(Terminator::No),
+		   Err(a) => return Err("Did not save".to_string()),
+		}
 	}
 	
 	fn get_date(&self) -> Option<Date<Utc>> ;	
 	
 }
+
+
 
 
 impl <'a> entry_type for Todo<'a> {
@@ -118,6 +135,7 @@ impl<'a> Appointments<'a>{
         }
      }
 }
+
 
 
 
