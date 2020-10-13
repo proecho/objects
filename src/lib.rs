@@ -152,7 +152,7 @@ mod tests {
     }
     
     #[test]
-    fn Todo_Date_time() {
+    fn todo_date_time() {
 		let title = "timmy".to_string();
 		let list ="buy tomato".to_string();
 		let datetime = Box::new(None);
@@ -163,8 +163,8 @@ mod tests {
 	
     }
     
-        #[test]
-    fn Events_Date_time() {
+    #[test]
+    fn events_date_time() {
 		let title = "timmy".to_string();
 		let datetime = Box::new(None);
 		let description = "celebrate tomato".to_string();
@@ -177,8 +177,8 @@ mod tests {
 	
     }
     
-        #[test]
-    fn appointments_Date_time() {
+    #[test]
+    fn appointments_date_time() {
 		let title = "timmy".to_string();
 		let datetime = Box::new(None);
 		let with_who = "timmy".to_string();
@@ -190,5 +190,24 @@ mod tests {
 		assert_eq!(tester.get_date(), None);
 	
     }
+    
+    #[test]
+    fn test_save(){
+		let title = "title".to_string();
+		let list = "buy tomato".to_string();
+		let datetime = Box::new(None);
+		
+		let tester = Todo::new(
+		                 Some(&title[..]),
+		                 Some(&list[..]),
+		                 datetime,
+		             );
+		    
+	   assert_eq!(tester.save(), Ok(Terminator::No));
+	   
+	}
+		
+		
+		      
 }
 
