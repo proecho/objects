@@ -13,33 +13,33 @@ pub enum Terminator{
 }
 
 #[derive(Debug,PartialEq,Clone)]
-pub enum entrys<'a>{
-	Todo(Todo <'a>),
-	Events(Events <'a>),
-	appointments(Appointments <'a>),
+pub enum entrys{
+	Todo(Todo ),
+	Events(Events),
+	appointments(Appointments),
 }
 
 #[derive(Debug,PartialEq,Clone)]
-pub struct Todo<'a>{
-	Title: Option<&'a str>,
-	List: Option<&'a str>,
+pub struct Todo{
+	Title: Option<String>,
 	DateTime: Box<Option<DateTime<Utc>>>,
+	List: Option<String>,
 }
 
 #[derive(Debug,PartialEq,Clone)]
-pub struct Events<'a>{
-	Title: Option<&'a str>,
+pub struct Events{
+	Title: Option<String>,
 	DateTime: Box<Option<DateTime<Utc>>>,
-	Description: Option<&'a str>,
-	Attendees:Option<&'a str>,
+	Description: Option<String>,
+	Attendees:Option<String>,
 }
 	
 #[derive(Debug,PartialEq,Clone)]
-pub struct Appointments<'a>{
-	Title: Option<&'a str>,
+pub struct Appointments{
+	Title: Option<String>,
 	DateTime: Box<Option<DateTime<Utc>>>,
-	With_who: Option<&'a str>,
-	Description: Option<&'a str>,
+	With_who: Option<String>,
+	Description: Option<String>,
 }
 
 
@@ -69,14 +69,16 @@ pub trait entry_type {
 		}
 	}
 	
-	fn get_date(&self) -> Option<Date<Utc>> ;	
+	fn get_date(&self) -> Option<Date<Utc>> ;
+	
+	fn new(Title: Option<String>, DateTime: Box<Option<DateTime<Utc>>>, Description: Option<String>, Attendees:Option<String>)	-> Self;
 	
 }
 
 
 
 
-impl <'a> entry_type for Todo<'a> {
+impl entry_type for Todo {
 	fn get_date(&self) -> Option<Date<Utc>> {
 		match *(self.DateTime).clone() {
 			None => return None,
@@ -84,38 +86,24 @@ impl <'a> entry_type for Todo<'a> {
 		}
 		
 	}
+    fn new(Title: Option<String>, DateTime: Box<Option<DateTime<Utc>>>, List: Option<String>, Other: Option<String>) -> Todo{
+		Todo{
+			Title,
+			DateTime,
+			List,
+		}
+	}
+	
 }
 
-impl <'a> entry_type for Events<'a> {
+impl entry_type for Events {
 	fn get_date(&self) -> Option<Date<Utc>> {
 		match*(self.DateTime).clone() {
 			None => return None,
 			Some(a) => return Some(a.date())
 		}
-	}   
-}
-
-impl <'a> entry_type for Appointments<'a> {
-    fn get_date(&self) -> Option<Date<Utc>> {
-	    match *(self.DateTime).clone(){
-			None => return None,
-			Some(a) => return Some(a.date())
-		}	    
-    }
-}
-
-impl<'a> Todo <'a> {
-    pub fn new(Title: Option<&'a str>, List: Option<&'a str>, DateTime: Box<Option<DateTime<Utc>>>) -> Todo<'a>{
-		Todo{
-			Title,
-			List,
-			DateTime,
-		}
 	}
-}
-
-impl<'a> Events<'a> {
-	pub fn new(Title: Option<&'a str>, DateTime: Box<Option<DateTime<Utc>>>, Description: Option<&'a str>, Attendees:Option<&'a str>) -> Events<'a> {
+	fn new(Title: Option<String>, DateTime: Box<Option<DateTime<Utc>>>, Description: Option<String>, Attendees:Option<String>) -> Events{
 		Events{
 			Title,
 			DateTime,
@@ -123,10 +111,17 @@ impl<'a> Events<'a> {
 			Attendees,
 		}
 	}
+	   
 }
 
-impl<'a> Appointments<'a>{
-	pub fn new(Title: Option<&'a str>, DateTime: Box<Option<DateTime<Utc>>>, With_who: Option<&'a str>, Description: Option<&'a str>) -> Appointments<'a> {
+impl  entry_type for Appointments{
+    fn get_date(&self) -> Option<Date<Utc>> {
+	    match *(self.DateTime).clone(){
+			None => return None,
+			Some(a) => return Some(a.date())
+		}	    
+    }
+	fn new(Title: Option<String>, DateTime: Box<Option<DateTime<Utc>>>, With_who: Option<String>, Description: Option<String>) -> Appointments {
 		Appointments{
 			Title, 
 	        DateTime,
@@ -135,6 +130,12 @@ impl<'a> Appointments<'a>{
         }
      }
 }
+
+//impl<'a> Todo <'a> {}
+
+//impl<'a> Events<'a> {}
+
+//impl<'a> Appointments<'a>{}
 
 
 
