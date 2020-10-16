@@ -1,1 +1,1 @@
-Todo { Title: Some("title"), List: Some("buy tomato"), DateTime: None }Todo { Title: Some("title"), List: Some("buy tomato"), DateTime: None }
+Todo { Title: Some("title"), List: Some("buy tomato"), DateTime: None }Todo { Title: Some("title"), List: Some("buy tomato"), DateTime: None }Todo { Title: Some("title"), DateTime: None, List: Some("buy tomato") }

@@ -6,27 +6,27 @@ use std::io::prelude::*;
 
 
 
-#[derive(Debug,PartialEq,Clone)]
+#[derive(Debug,PartialEq,Clone)] //enum which passes up instruction to terminate program
 pub enum Terminator{
 	Terminate,
 	No,
 }
 
-#[derive(Debug,PartialEq,Clone)]
+#[derive(Debug,PartialEq,Clone)] // enum which can hold all entry types
 pub enum entrys{
 	Todo(Todo ),
 	Events(Events),
 	appointments(Appointments),
 }
 
-#[derive(Debug,PartialEq,Clone)]
+#[derive(Debug,PartialEq,Clone)]    //struct for storing and processing todo lists 
 pub struct Todo{
 	Title: Option<String>,
 	DateTime: Box<Option<DateTime<Utc>>>,
 	List: Option<String>,
 }
 
-#[derive(Debug,PartialEq,Clone)]
+#[derive(Debug,PartialEq,Clone)]    //struct for storing and processing events and parties
 pub struct Events{
 	Title: Option<String>,
 	DateTime: Box<Option<DateTime<Utc>>>,
@@ -34,7 +34,7 @@ pub struct Events{
 	Attendees:Option<String>,
 }
 	
-#[derive(Debug,PartialEq,Clone)]
+#[derive(Debug,PartialEq,Clone)]    //struct for storing and processing events and parties
 pub struct Appointments{
 	Title: Option<String>,
 	DateTime: Box<Option<DateTime<Utc>>>,
@@ -43,14 +43,15 @@ pub struct Appointments{
 }
 
 
-
+// trait for all kinds of stored reminders
 pub trait entry_type {
+	//save is the core part of the program which stores all reminders in files by day for later recovery on that day 
 	fn save(&self) -> Result<Terminator,String> where Self: std::fmt::Debug{
 		let file_name = match self.get_date() {
 			Some(a) => format!("{}",a),
 			None => format!("None"),
 		};
-			
+		// if date field value is none then it will put in the none folder whic is always loadded good for daily reminders	
 		let file = OpenOptions::new()
 		           .append(true)
 		           .create(true)
@@ -69,7 +70,10 @@ pub trait entry_type {
 		}
 	}
 	
+	//gets date from objects datetime field
 	fn get_date(&self) -> Option<Date<Utc>> ;
+	
+	//creates new instance of object
 	
 	fn new(Title: Option<String>, DateTime: Box<Option<DateTime<Utc>>>, Description: Option<String>, Attendees:Option<String>)	-> Self;
 	
@@ -77,7 +81,7 @@ pub trait entry_type {
 
 
 
-
+//these just implement methods that need to be implemented on a case by case basis
 impl entry_type for Todo {
 	fn get_date(&self) -> Option<Date<Utc>> {
 		match *(self.DateTime).clone() {
@@ -95,7 +99,7 @@ impl entry_type for Todo {
 	}
 	
 }
-
+//these just implement methods that need to be implemented on a case by case basis
 impl entry_type for Events {
 	fn get_date(&self) -> Option<Date<Utc>> {
 		match*(self.DateTime).clone() {
@@ -113,7 +117,7 @@ impl entry_type for Events {
 	}
 	   
 }
-
+//these just implement methods that need to be implemented on a case by case basis
 impl  entry_type for Appointments{
     fn get_date(&self) -> Option<Date<Utc>> {
 	    match *(self.DateTime).clone(){
@@ -143,7 +147,7 @@ impl  entry_type for Appointments{
 
 
 
-
+// all my tests - probably need more
 #[cfg(test)]
 mod tests {
 	use super::*;
@@ -151,14 +155,15 @@ mod tests {
     fn it_works() {
         assert_eq!(2 + 2, 4);
     }
-    
+    //
     #[test]
     fn todo_date_time() {
 		let title = "timmy".to_string();
 		let list ="buy tomato".to_string();
 		let datetime = Box::new(None);
+		let other = "sdnjabjlkvkjbaj".to_string();
 		
-		let tester = Todo::new(Some(&title[..]), Some(&list[..]), datetime); 
+		let tester = Todo::new(Some(title), datetime, Some(list), Some(other)); 
 		
 		assert_eq!(tester.get_date(), None);
 	
@@ -172,7 +177,7 @@ mod tests {
 		let attendees = "Rosa, Lucy, Molly".to_string();
 		
 		
-		let tester = Events::new(Some(&title[..]), datetime, Some(&description[..]), Some(&attendees[..])); 
+		let tester = Events::new(Some(title), datetime, Some(description), Some(attendees)); 
 		
 		assert_eq!(tester.get_date(), None);
 	
@@ -186,7 +191,7 @@ mod tests {
 		let description ="buy tomato".to_string();
 		
 		
-		let tester = Appointments::new(Some(&title[..]), datetime, Some(&with_who[..]), Some(&description[..]));
+		let tester = Appointments::new(Some(title), datetime, Some(with_who), Some(description));
 		
 		assert_eq!(tester.get_date(), None);
 	
@@ -197,11 +202,14 @@ mod tests {
 		let title = "title".to_string();
 		let list = "buy tomato".to_string();
 		let datetime = Box::new(None);
+		let other = "sdnjabjlkvkjbaj".to_string();
 		
 		let tester = Todo::new(
-		                 Some(&title[..]),
-		                 Some(&list[..]),
+		                 Some(title),
 		                 datetime,
+		                 Some(list),
+		                 Some(other),
+		                
 		             );
 		    
 	   assert_eq!(tester.save(), Ok(Terminator::No));
