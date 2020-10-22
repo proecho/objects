@@ -48,8 +48,8 @@ pub trait entry_type {
 	//save is the core part of the program which stores all reminders in files by day for later recovery on that day 
 	fn save(&self) -> Result<Terminator,String> where Self: std::fmt::Debug{
 		let file_name = match self.get_date() {
-			Some(a) => format!("{}",a),
-			None => format!("None"),
+			Some(a) => format!("{}.txt",a),
+			None => format!("None.txt"),
 		};
 		// if date field value is none then it will put in the none folder whic is always loadded good for daily reminders	
 		let file = OpenOptions::new()
@@ -60,7 +60,7 @@ pub trait entry_type {
 		if self.get_date() == Some(DateTime::<Utc>::from(SystemTime::now()).date()) {
 	    }
 		           
-		let success = file.unwrap().write_all((format!("{:?}", self)).as_bytes()); //fix this later
+		let success = file.unwrap().write_all((self.save_display()).as_bytes()); //fix this later
 		
 //		if 
 		
@@ -77,6 +77,9 @@ pub trait entry_type {
 	
 	fn new(Title: Option<String>, DateTime: Box<Option<DateTime<Utc>>>, Description: Option<String>, Attendees:Option<String>)	-> Self;
 	
+	fn save_display(&self) -> String;
+	
+	fn get_date_time(&self) -> Option<DateTime<Utc>>;
 }
 
 
@@ -90,12 +93,34 @@ impl entry_type for Todo {
 		}
 		
 	}
+	fn get_date_time(&self) -> Option<DateTime<Utc>> {
+		match *(self.DateTime).clone() {
+			None => return None,
+			Some(a) => return Some(a)
+		}
+		
+	}
     fn new(Title: Option<String>, DateTime: Box<Option<DateTime<Utc>>>, List: Option<String>, Other: Option<String>) -> Todo{
 		Todo{
 			Title,
 			DateTime,
 			List,
 		}
+	}
+	fn save_display(&self) -> String{
+		format!(" /n Todo Title {:?} /n DateTime {:?} /n List {:?} /n #", 
+		    match &self.Title{
+				Some(a) => (*a.clone()).to_string(),
+				None => "None".to_string(), 
+			},
+			match *(self.DateTime){
+				Some(a) => a.to_string(),
+				None => "None".to_string(),
+			},
+			match &self.List{
+				Some(a) => (*a.clone()).to_string(),
+				None => "None".to_string(),
+			})
 	}
 	
 }
@@ -107,6 +132,13 @@ impl entry_type for Events {
 			Some(a) => return Some(a.date())
 		}
 	}
+	fn get_date_time(&self) -> Option<DateTime<Utc>> {
+		match *(self.DateTime).clone() {
+			None => return None,
+			Some(a) => return Some(a)
+		}
+		
+	}
 	fn new(Title: Option<String>, DateTime: Box<Option<DateTime<Utc>>>, Description: Option<String>, Attendees:Option<String>) -> Events{
 		Events{
 			Title,
@@ -114,6 +146,25 @@ impl entry_type for Events {
 			Description,
 			Attendees,
 		}
+	}
+	fn save_display(&self) -> String{
+		format!(" /n Events Title {:?} /n DateTime {:?} /n Description {:?} /n Attendees {:?} /n #", 
+		    match &self.Title{
+				Some(a) => (*a.clone()).to_string(),
+				None => "None".to_string(), 
+			},
+			match *(self.DateTime){
+				Some(a) => a.to_string(),
+				None => "None".to_string(), 
+			},
+			match &self.Description{
+				Some(a) => (*a.clone()).to_string(),
+				None => "None".to_string(), 
+			},
+			match &self.Attendees{
+				Some(a) => (*a.clone()).to_string(),
+				None => "None".to_string(), 
+			})
 	}
 	   
 }
@@ -125,6 +176,13 @@ impl  entry_type for Appointments{
 			Some(a) => return Some(a.date())
 		}	    
     }
+	fn get_date_time(&self) -> Option<DateTime<Utc>> {
+		match *(self.DateTime).clone() {
+			None => return None,
+			Some(a) => return Some(a)
+		}
+		
+	}
 	fn new(Title: Option<String>, DateTime: Box<Option<DateTime<Utc>>>, With_who: Option<String>, Description: Option<String>) -> Appointments {
 		Appointments{
 			Title, 
@@ -133,6 +191,25 @@ impl  entry_type for Appointments{
 	        Description,
         }
      }
+     fn save_display(&self) -> String{
+		format!(" /n Appointments Title {:?} /n DateTime {:?} /n With_who{:?} /n Description{:?} /n #", 
+		    match &self.Title{
+				Some(a) => (*a.clone()).to_string(),
+				None => "None".to_string(), 
+			}, 
+			match *(self.DateTime){
+				Some(a) => a.to_string(),
+				None => "None".to_string(), 
+			}, 
+			match &self.With_who{
+				Some(a) => (*a.clone()).to_string(),
+				None => "None".to_string(), 
+			},
+			match &self.Description{
+				Some(a) => (*a.clone()).to_string(),
+				None => "None".to_string(), 
+			})
+	 }
 }
 
 //impl<'a> Todo <'a> {}
@@ -192,6 +269,7 @@ mod tests {
 		
 		
 		let tester = Appointments::new(Some(title), datetime, Some(with_who), Some(description));
+		println!("{:?}", tester);
 		
 		assert_eq!(tester.get_date(), None);
 	
@@ -215,6 +293,15 @@ mod tests {
 	   assert_eq!(tester.save(), Ok(Terminator::No));
 	   
 	}
+	#[test]
+	fn testing_save_display(){
+	    let title = "timmy".to_string();
+		let datetime = Box::new(None);
+		let description = "celebrate tomato".to_string();
+		let attendees = "Rosa, Lucy, Molly".to_string();
+	}
+		
+		
 		
 		
 		      
